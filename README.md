@@ -1,6 +1,8 @@
 # 让AI认不出来AI画的图
 
 # 人类无法察觉，但能让AI变傻
+<a href="https://colab.research.google.com/drive/1bzoZtE28Y8vfmjuaxXKdh-fr4K0WWSmf?usp=sharing" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
 
 ## 介绍
 这是一个针对 [AI绘画识别器](https://huggingface.co/saltacc/anime-ai-detect) 
