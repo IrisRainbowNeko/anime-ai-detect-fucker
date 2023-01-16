@@ -19,7 +19,7 @@ def make_args():
 
     parser.add_argument('inputs', type=str)
     parser.add_argument('--out_dir', type=str, default='./output')
-    parser.add_argument('--target', type=str, default='auto', help='[auto, ai, human]')
+    parser.add_argument('--target', type=str, default='auto', help='[auto, ai, human, same]')
     parser.add_argument('--eps', type=float, default=8/8, help='Noise intensity ')
     parser.add_argument('--step_size', type=float, default=1.087313/8, help='Attack step size')
     parser.add_argument('--steps', type=int, default=20, help='Attack step count')
@@ -44,12 +44,17 @@ class Attacker:
             self.target = torch.tensor([1]).to(device)
         elif args.target=='human':
             self.target = torch.tensor([0]).to(device)
+        else:
+            self.target = torch.tensor([0]).to(device)
 
         dataset_mean_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
         dataset_std_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
         self.pgd = PGD(self.model, img_transform=(lambda x: (x - dataset_mean_t) / dataset_std_t, lambda x: x * dataset_std_t + dataset_mean_t))
         self.pgd.set_para(eps=(args.eps * 2) / 255, alpha=lambda: (args.step_size * 2) / 255, iters=args.steps)
-        self.pgd.set_loss(CrossEntropyLoss())
+
+        def loss_same(a, b):
+            return -torch.exp((a[0, 0] - a[0, 1]) ** 2)
+        self.pgd.set_loss(loss_same if args.target=='same' else CrossEntropyLoss())
 
     def save_image(self, image, noise, img_name):
         # 缩放图片只缩放噪声
