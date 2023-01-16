@@ -37,7 +37,7 @@ class Attacker:
 
         print('正在加载模型...')
         self.feature_extractor = BeitFeatureExtractor.from_pretrained('saltacc/anime-ai-detect')
-        self.model = BeitForImageClassification.from_pretrained('saltacc/anime-ai-detect').cuda()
+        self.model = BeitForImageClassification.from_pretrained('saltacc/anime-ai-detect').to(device)
         print('加载完毕')
 
         if args.target=='ai': #攻击成被识别为AI
@@ -45,8 +45,8 @@ class Attacker:
         elif args.target=='human':
             self.target = torch.tensor([0]).to(device)
 
-        dataset_mean_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).cuda()
-        dataset_std_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).cuda()
+        dataset_mean_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
+        dataset_std_t = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
         self.pgd = PGD(self.model, img_transform=(lambda x: (x - dataset_mean_t) / dataset_std_t, lambda x: x * dataset_std_t + dataset_mean_t))
         self.pgd.set_para(eps=(args.eps * 2) / 255, alpha=lambda: (args.step_size * 2) / 255, iters=args.steps)
         self.pgd.set_loss(CrossEntropyLoss())
@@ -61,7 +61,7 @@ class Attacker:
         save_image(img_save, os.path.join(self.args.out_dir, f'{img_name[:img_name.rfind(".")]}_atk.png'))
 
     def attack_(self, image):
-        inputs = self.feature_extractor(images=image, return_tensors="pt")['pixel_values'].cuda()
+        inputs = self.feature_extractor(images=image, return_tensors="pt")['pixel_values'].to(device)
 
         if self.args.target == 'auto':
             with torch.no_grad():
