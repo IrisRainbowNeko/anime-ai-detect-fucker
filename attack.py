@@ -29,8 +29,10 @@ def make_args():
     return parser.parse_args()
 
 class Attacker:
-    def __init__(self, args):
+    def __init__(self, args, save_callback=None):
         self.args=args
+        self.save_callback=save_callback
+
         os.makedirs(args.out_dir, exist_ok=True)
 
         print('正在加载模型...')
@@ -54,6 +56,8 @@ class Attacker:
         W, H = image.size
         noise = F.interpolate(noise, size=(H, W), mode='bicubic')
         img_save = transforms.ToTensor()(image) + noise
+        if self.save_callback is not None:
+            self.save_callback(img_save)
         save_image(img_save, os.path.join(self.args.out_dir, f'{img_name[:img_name.rfind(".")]}_atk.png'))
 
     def attack_(self, image):
