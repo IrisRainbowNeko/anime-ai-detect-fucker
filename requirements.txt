@@ -9,5 +9,4 @@ numpy
 pytest
 requests
 einops
-tensorboardX
 scipy
