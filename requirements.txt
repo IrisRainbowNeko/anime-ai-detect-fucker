@@ -1,6 +1,7 @@
-torch
-torchvision
-timm
+torch==1.12.1
+torchvision==0.13.1
+timm==0.6.12
+transformers==4.25.1
 Pillow
 blobfile
 mypy
@@ -9,5 +10,4 @@ pytest
 requests
 einops
 tensorboardX
-deepspeed==0.4.0
 scipy
