@@ -1,11 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name='aai_attacker',
+    name='anime-ai-detect-attacker',
     version='1.0',
     description='anime-ai-detect-attacker',
-    author='7eu7d7',
-    author_email='',
-    packages=['aai_attacker'],  # same as name
-    install_requires=[],  # external packages as dependencies
+    packages=find_packages(),  # same as name
+    install_requires=['numpy'],  # external packages as dependencies
 )
