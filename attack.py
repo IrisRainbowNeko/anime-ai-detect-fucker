@@ -56,12 +56,10 @@ class Attacker:
         img_save = transforms.ToTensor()(image) + noise
         save_image(img_save, os.path.join(self.args.out_dir, f'{img_name[:img_name.rfind(".")]}_atk.png'))
 
-    def attack_one(self, path):
-        image = Image.open(path)
-
+    def attack_(self, image):
         inputs = self.feature_extractor(images=image, return_tensors="pt")['pixel_values'].cuda()
 
-        if self.args.target=='auto':
+        if self.args.target == 'auto':
             with torch.no_grad():
                 outputs = self.model(inputs)
                 logits = outputs.logits
@@ -76,10 +74,16 @@ class Attacker:
         atk_img = self.pgd.attack(inputs, target)
 
         noise = self.pgd.img_transform[1](atk_img).detach().cpu() - self.pgd.img_transform[1](inputs).detach().cpu()
-        self.save_image(image, noise, os.path.basename(path))
 
         if self.args.test_atk:
             self.test_image(atk_img, 'after attack')
+
+        return atk_img, noise
+
+    def attack_one(self, path):
+        image = Image.open(path).convert('RGB')
+        atk_img, noise = self.attack_(image)
+        self.save_image(image, noise, os.path.basename(path))
 
     def attack(self, path):
         count=0
